@@ -152,6 +152,8 @@ private: System::Void openFileBtn_Click(System::Object^ sender, System::EventArg
 	openFileDialog1->Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
 	System::Windows::Forms::DialogResult result = openFileDialog1->ShowDialog();
 	if (result == System::Windows::Forms::DialogResult::OK) {
+		stats->Items->Clear();
+		uniqueWords->Items->Clear();
 		System::String^ filePath = openFileDialog1->FileName;
 		System::String^ text = File::ReadAllText(filePath);
 		currentText->Text = text;
@@ -173,9 +175,22 @@ private: System::Void openFileBtn_Click(System::Object^ sender, System::EventArg
 		std::map<std::string, int> words;
 		for (int i = 0; i < splittedText->Length; i++){
 			System::String^ temp = splittedText[i];
-			//words.insert(msclr::interop::marshal_as<std::string>(temp), 0);
-			//words.find(msclr::interop::marshal_as<std::string>(temp))
+			auto it1 = words.find(msclr::interop::marshal_as<std::string>(temp));
+			if (it1 != words.end()) {
+				it1->second++;
+			}
+			else {
+				words.insert({ msclr::interop::marshal_as<std::string>(temp), 1 });
+			}
+			
 		}
+		for (auto it = words.begin(); it != words.end(); ++it) {
+			std::string key = it->first;
+			int value = it->second;
+			System::String^ sysStr = gcnew String(key.c_str());
+			stats->Items->Add(sysStr + "	" + it->second);
+		}
+		
 		
 	}
 
